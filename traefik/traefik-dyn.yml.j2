@@ -1,7 +1,7 @@
 tls:
   certificates:
-    - certFile: "fullchain.cer"
-      keyFile: "{{ cert.domain }}.key"
+    - certFile: "/etc/certs/fullchain.cer"
+      keyFile: "/etc/certs/{{ cert.domain }}.key"
 
 http:
   services:
@@ -10,6 +10,7 @@ http:
         servers:
         - url: "localhost:9000"
   routers:
-    my-router:
-      rule: "Path(`/auth`)"
+    authentik:
+      tls: true
+      rule: "PathPrefix(`/auth`)"
       service: authentik
