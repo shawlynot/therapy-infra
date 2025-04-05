@@ -3,6 +3,7 @@
 services:
   reverse-proxy:
     image: traefik:v3.0
+    restart: unless-stopped
     user: root # TODO fix me
     ports:
       - "80:80"

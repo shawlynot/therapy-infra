@@ -8,9 +8,9 @@ http:
     authentik:
       loadBalancer:
         servers:
-        - url: "localhost:9000"
+        - url: "http://authentik-server:9000"
   routers:
     authentik:
       tls: true
-      rule: "PathPrefix(`/auth`)"
+      rule: "Host(`{{ cert.domain }}`) && PathPrefix(`/auth`)"
       service: authentik
