@@ -1,0 +1,30 @@
+---
+- name: Clean
+  hosts: all
+  vars_files:
+    - .vars/vars.yaml
+  vars:
+    authentik_home: /usr/local/authentik
+    acme_home: /usr/local/acme
+  tasks:
+
+    - name: Authentik stop
+      community.docker.docker_compose_v2:
+        project_src: "{{ authentik_home }}"
+        state: stopped
+      ignore_errors: true
+
+    - name: Authentik dir
+      ansible.builtin.file:
+        path: "{{ authentik_home }}"
+        state: absent
+
+    - name: ACME dir
+      ansible.builtin.file:
+        path: "{{ acme_home }}"
+        state: absent
+    
+    - name: ACME install
+      ansible.builtin.file:
+        path: "acme.sh"
+        state: absent

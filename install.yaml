@@ -1,0 +1,51 @@
+---
+- name: Install
+  hosts: all
+  vars_files:
+    - .vars/vars.yaml
+  vars:
+    authentik_home: /usr/local/authentik
+    acme_home: /usr/local/acme
+  tasks:
+    - name: Ping my hosts
+      ansible.builtin.ping:
+
+    - name: ACME
+      ansible.builtin.template:
+        src: "certs/acme.sh.j2"
+        dest: "acme.sh"
+        mode: '700'
+    
+    - name: ACME install
+      ansible.builtin.shell:
+        cmd: "./acme.sh"
+        creates: "{{ acme_home }}"
+
+    - name: ACME run
+      ansible.builtin.shell:
+        cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} --config-home {{ acme_home }}/config  --debug --force"
+        creates: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
+      environment:
+        CF_Token: "{{ cert.CF_Token }}"
+        CF_Zone_ID: "{{ cert.CF_Zone_ID }}"
+
+    - name: Authentik dir
+      ansible.builtin.file:
+        path: "{{ authentik_home }}"
+        state: directory
+        mode: "0755"
+
+    - name: Authentik env
+      ansible.builtin.template:
+        src: "authentik/.env.j2"
+        dest: "{{ authentik_home }}/.env"
+
+    - name: Authentik docker yaml
+      ansible.builtin.get_url:
+        url: https://goauthentik.io/docker-compose.yml
+        dest: "{{ authentik_home }}"
+
+    - name: Authentik start
+      community.docker.docker_compose_v2:
+        project_src: "{{ authentik_home }}"
+        remove_orphans: true
