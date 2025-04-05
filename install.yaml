@@ -4,8 +4,9 @@
   vars_files:
     - .vars/vars.yaml
   vars:
-    authentik_home: /usr/local/authentik
     acme_home: /usr/local/acme
+    cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
+    traefik_home: /usr/local/traefik
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -14,38 +15,48 @@
       ansible.builtin.template:
         src: "certs/acme.sh.j2"
         dest: "acme.sh"
-        mode: '700'
-    
+        mode: "700"
+
     - name: ACME install
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "./acme.sh"
         creates: "{{ acme_home }}"
 
     - name: ACME run
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} --config-home {{ acme_home }}/config  --debug --force"
-        creates: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
+        creates: "{{ cert_home }}"
       environment:
         CF_Token: "{{ cert.CF_Token }}"
         CF_Zone_ID: "{{ cert.CF_Zone_ID }}"
 
-    - name: Authentik dir
+    - name: Traefik dir
       ansible.builtin.file:
-        path: "{{ authentik_home }}"
+        path: "{{ traefik_home }}"
         state: directory
         mode: "0755"
 
-    - name: Authentik env
+    - name: Traefik cfg
       ansible.builtin.template:
-        src: "authentik/.env.j2"
-        dest: "{{ authentik_home }}/.env"
+        src: "traefik/{{ item }}.j2"
+        dest: "{{ traefik_home }}/{{ item }}"
+        mode: "744"
+      with_items:
+        - traefik.yml
+        - traefik-dyn.yml
 
-    - name: Authentik docker yaml
-      ansible.builtin.get_url:
-        url: https://goauthentik.io/docker-compose.yml
-        dest: "{{ authentik_home }}"
+    - name: Docker env
+      ansible.builtin.template:
+        src: "docker/.env.j2"
+        dest: ".env"
 
-    - name: Authentik start
+    - name: Docker yaml
+      ansible.builtin.template:
+        src: "docker/docker-compose.yml.j2"
+        dest: "docker-compose.yml"
+
+    - name: Docker start
       community.docker.docker_compose_v2:
-        project_src: "{{ authentik_home }}"
+        project_src: "."
         remove_orphans: true
+

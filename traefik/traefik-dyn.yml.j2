@@ -1,0 +1,15 @@
+tls:
+  certificates:
+    - certFile: "fullchain.cer"
+      keyFile: "{{ cert.domain }}.key"
+
+http:
+  services:
+    authentik:
+      loadBalancer:
+        servers:
+        - url: "localhost:9000"
+  routers:
+    my-router:
+      rule: "Path(`/auth`)"
+      service: authentik

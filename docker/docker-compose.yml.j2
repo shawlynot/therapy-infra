@@ -2,12 +2,14 @@
 
 services:
   reverse-proxy:
-    # The official v3 Traefik docker image
     image: traefik:v3.0
-    # Enables the web UI and tells Traefik to listen to docker
     ports:
-      # The HTTP port
       - "80:80"
+      - "443:443"
+    volumes:
+      - "{{ traefik_home }}:/etc/traefik"
+      - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
+
   postgresql:
     image: docker.io/library/postgres:16-alpine
     restart: unless-stopped
@@ -70,6 +72,7 @@ services:
       AUTHENTIK_POSTGRESQL__USER: ${PG_USER:-authentik}
       AUTHENTIK_POSTGRESQL__NAME: ${PG_DB:-authentik}
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+      AUTHENTIK_WEB__PATH: /auth/
     # `user: root` and the docker socket volume are optional.
     # See more for the docker socket integration here:
     # https://goauthentik.io/docs/outposts/integrations/docker
