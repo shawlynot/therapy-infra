@@ -5,12 +5,12 @@ tls:
 
 http:
   services:
-    authentik:
+    zitadel:
       loadBalancer:
         servers:
-        - url: "http://authentik-server:9000"
+        - url: "h2c://zitadel:8080"
   routers:
-    authentik:
-      tls: true
-      rule: "Host(`{{ cert.domain }}`) && PathPrefix(`/auth`)"
-      service: authentik
+    auth:
+      tls: {}
+      rule: "Host(`auth.{{ cert.domain }}`)"
+      service: zitadel

@@ -25,7 +25,7 @@
 
     - name: ACME run
       ansible.builtin.command:
-        cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} --config-home {{ acme_home }}/config  --debug --force"
+        cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} -d auth.{{ cert.domain }} --config-home {{ acme_home }}/config  --debug"
         creates: "{{ cert_home }}"
       environment:
         CF_Token: "{{ cert.CF_Token }}"

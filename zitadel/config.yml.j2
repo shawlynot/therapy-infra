@@ -4,6 +4,11 @@ Log:
 
 # Make ZITADEL accessible over HTTP, not HTTPS
 ExternalSecure: false
+TLS:
+  Enabled: false
+
+ExternalDomain:
+  auth.{{ cert.domain }}
 
 # If not using the docker compose example, adjust these values for connecting ZITADEL to your PostgreSQL
 Database:
