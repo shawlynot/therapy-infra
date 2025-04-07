@@ -7,6 +7,7 @@
     acme_home: /usr/local/acme
     cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
     traefik_home: /usr/local/traefik
+    zitadel_home: /usr/local/zitadel
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -30,25 +31,37 @@
         CF_Token: "{{ cert.CF_Token }}"
         CF_Zone_ID: "{{ cert.CF_Zone_ID }}"
 
-    - name: Traefik dir
+    - name: Dirs
       ansible.builtin.file:
-        path: "{{ traefik_home }}"
+        path: "{{ item }}"
         state: directory
-        mode: "0755"
+      with_items:
+        - "{{ traefik_home }}"
+        - "{{ zitadel_home }}"
 
     - name: Traefik cfg
       ansible.builtin.template:
         src: "traefik/{{ item }}.j2"
         dest: "{{ traefik_home }}/{{ item }}"
-        mode: "744"
       with_items:
         - traefik.yml
         - traefik-dyn.yml
-
-    - name: Docker env
+    
+    - name: Zitadel cfg
       ansible.builtin.template:
-        src: "docker/.env.j2"
-        dest: ".env"
+        src: "zitadel/{{ item }}.j2"
+        dest: "{{ zitadel_home }}/{{ item }}"
+      with_items:
+        - config.yml
+
+    - name: db image copy
+      ansible.builtin.copy:
+        src: db/build/db.tar
+        dest: db.tar
+
+    - name: Load all image(s) from the given tar file
+      community.docker.docker_image_load:
+        path: db.tar
 
     - name: Docker yaml
       ansible.builtin.template:
@@ -59,4 +72,3 @@
       community.docker.docker_compose_v2:
         project_src: "."
         remove_orphans: true
-

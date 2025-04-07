@@ -2,3 +2,4 @@
 .vars
 .ansible
 .vscode
+build/
