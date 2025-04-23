@@ -8,6 +8,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      - "25:25"
+      - "465:465"
+      - "993:993"
     volumes:
       - "{{ traefik_home }}:/etc/traefik"
       - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
@@ -41,8 +44,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - 8080:8080
+  
+  stallwart:
+    user: root
+    restart: unless-stopped
+    image: stalwartlabs/mail-server:latest
+  command: --config 
+    volumes:
+      - "{{stallwart_home}}:/opt/stalwart-mail"
 
 volumes:
   database:

@@ -12,7 +12,25 @@ entryPoints:
     http:
       tls:
         domains:
-          - main: {{ cert.domain }}
+          - main: "{{ cert.domain }}"
+          - sans:
+            - "auth.{{ cert.domain }}"
+            - "mail.{{ cert.domain }}"
+
+  smtp:
+    address: :25
+    proxyProtocol:
+      trustedIPs: []
+
+  smtps:
+    address: :465
+    proxyProtocol:
+      trustedIPs: []
+
+  imaps:
+    address: :993
+    proxyProtocol:
+      trustedIPs: []
     
 providers:
   file:
@@ -20,3 +38,6 @@ providers:
 
 log:
   level: DEBUG
+
+accesslog:
+  addInternals: true

@@ -9,8 +9,48 @@ http:
       loadBalancer:
         servers:
         - url: "h2c://zitadel:8080"
+    stallwart:
+      loadBalancer:
+        servers:
+        - url: "https://stallwart:443"
+    smtp:
+      loadBalancer:
+        servers:
+          - address: "stallwart:25"
+        proxyProtocol: {}
+    smtps:
+      loadBalancer:
+        servers:
+          - address: "stallwart:465"
+        proxyProtocol: {}
+    imaps:
+      loadBalancer:
+        servers:
+          - address: "stallwart:993"
+        proxyProtocol: {}
   routers:
     auth:
       tls: {}
       rule: "Host(`auth.{{ cert.domain }}`)"
       service: zitadel
+    mail:
+      tls:
+        passthrough: true
+      rule: "Host(`mail.{{ cert.domain }}`)"
+      service: stallwart
+    smtp:
+      rule: HostSNI(`*`)
+      entrypoints:
+        - smtp
+    smtps:
+      rule: HostSNI(`*`)
+      entrypoints:
+        - smtps
+      tls:
+        passthrough: true
+    imaps:
+      rule: HostSNI(`*`)
+      entrypoints:
+        - imaps
+      tls:
+        passthrough: true

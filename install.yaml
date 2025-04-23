@@ -8,6 +8,7 @@
     cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
     traefik_home: /usr/local/traefik
     zitadel_home: /usr/local/zitadel
+    stallwart_home: /usr/local/stalwart-mail
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -25,7 +26,7 @@
 
     - name: ACME run
       ansible.builtin.command:
-        cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} -d auth.{{ cert.domain }} --config-home {{ acme_home }}/config  --debug"
+        cmd: "{{ acme_home }}/acme.sh --issue --dns dns_cf -d {{ cert.domain }} -d auth.{{ cert.domain }} -d mail.{{ cert.domain }} --config-home {{ acme_home }}/config  --debug"
         creates: "{{ cert_home }}"
       environment:
         CF_Token: "{{ cert.CF_Token }}"
@@ -38,6 +39,7 @@
       with_items:
         - "{{ traefik_home }}"
         - "{{ zitadel_home }}"
+        - "{{ stallwart_home }}"
 
     - name: Traefik cfg
       ansible.builtin.template:
