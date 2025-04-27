@@ -1,29 +1,40 @@
 # All possible options and their defaults: https://github.com/zitadel/zitadel/blob/main/cmd/defaults.yaml
 Log:
-  Level: 'info'
+  Level: "info"
 
 # Make ZITADEL accessible over HTTP, not HTTPS
 ExternalSecure: false
 TLS:
   Enabled: false
 
-ExternalDomain:
-  auth.{{ cert.domain }}
+ExternalDomain: auth.{{ cert.domain }}
 
-# If not using the docker compose example, adjust these values for connecting ZITADEL to your PostgreSQL
 Database:
   postgres:
-    Host: 'db'
+    Host: "db"
     Port: 5432
     Database: zitadel
     User:
       SSL:
-        Mode: 'disable'
+        Mode: "disable"
       Username: zitadel
-      Password: {{ db.ZITADEL_PG_PASS }}
+      Password: { { db.ZITADEL_PG_PASS } }
     Admin:
       ExistingDatabase: postgres
       SSL:
-        Mode: 'disable'
+        Mode: "disable"
       Username: admin
-      Password: {{ db.POSTGRES_PASSWORD }}
+      Password: { { db.POSTGRES_PASSWORD } }
+
+# DefaultInstance:
+#   SMTPConfiguration:
+#     # Configuration of the host
+#     SMTP:
+#       # must include the port, like smtp.mailtrap.io:2525. IPv6 is also supported, like [2001:db8::1]:2525
+#       Host: # ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_SMTP_HOST
+#       User: # ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_SMTP_USER
+#       Password: # ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_SMTP_PASSWORD
+#     TLS: # ZITADEL_DEFAULTINSTANCE_SMTPCONFIGURATION_TLS
+#     # If the host of the sender is different from ExternalDomain set DefaultInstance.DomainPolicy.SMTPSenderAddressMatchesInstanceDomain to false
+#     From: noreply@shawlynot.dev
+#     FromName: Therapy (no-reply)

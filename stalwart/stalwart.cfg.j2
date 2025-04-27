@@ -1,0 +1,64 @@
+# Inbound MTA listener - accepts mail from other MTAs
+[server.listener."smtp"]
+bind     = "[::]:25"
+protocol = "smtp"
+# No authentication required here
+
+# Submission listener - for authenticated clients (e.g., your mail client)
+[server.listener."submission"]
+bind       = "[::]:587"
+protocol   = "smtp"
+# Require SASL auth on this listener
+authentication = { mandatory = true }
+
+# Enforce relay policy
+[session.rcpt]
+relay = [
+  { if = "!is_empty(authenticated_as)", then = true },
+  { else = false }
+]
+
+# Optional: require EHLO to be fully qualified
+[session.ehlo]
+require = true
+reject-non-fqdn = true
+
+[storage]
+data = "postgresql"
+fts = "postgresql"
+blob = "postgresql"
+lookup = "postgresql"
+
+[store."postgresql"]
+type = "postgresql"
+host = "db"
+port = "5432"
+database = "stalwart"
+user = "stalwart"
+password = "{{ db.STALWART_PG_PASS }}"
+
+[directory."default"]
+type = "internal"
+store = "postgres"
+
+[tracer."stdout"]
+type = "stdout"
+level = "info"
+ansi = false
+enable = true
+
+[authentication.fallback-admin]
+user = "admin"
+secret = "{{ stalwart.admin }}"
+
+# Tell Stalwart which named certificate to use by default
+server.tls.certificate = "default"
+
+# Define the certificate named "default"
+[certificate."default"]
+# Path to your fullchain PEM; uses the file macro
+cert        = "%{file:/etc/certs/fullchain.cer}%"
+# Path to your private key PEM
+private-key = "%{file:/etc/certs/{{ cert.domain }}.key}%"
+# Mark this cert as the fallback when no SNI is provided
+default     = true

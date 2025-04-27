@@ -9,25 +9,31 @@ http:
       loadBalancer:
         servers:
         - url: "h2c://zitadel:8080"
-    stallwart:
+    stalwart:
       loadBalancer:
         servers:
-        - url: "https://stallwart:443"
+        - url: "https://stalwart:443"
     smtp:
       loadBalancer:
         servers:
-          - address: "stallwart:25"
-        proxyProtocol: {}
+          - address: "stalwart:25"
+        proxyProtocol:
+          trustedIPs:
+            - 172.19.0.0/16
     smtps:
       loadBalancer:
         servers:
-          - address: "stallwart:465"
-        proxyProtocol: {}
+          - address: "stalwart:465"
+        proxyProtocol:
+          trustedIPs:
+            - 172.19.0.0/16
     imaps:
       loadBalancer:
         servers:
-          - address: "stallwart:993"
-        proxyProtocol: {}
+          - address: "stalwart:993"
+        proxyProtocol:
+          trustedIPs:
+            - 172.19.0.0/16
   routers:
     auth:
       tls: {}
@@ -37,7 +43,7 @@ http:
       tls:
         passthrough: true
       rule: "Host(`mail.{{ cert.domain }}`)"
-      service: stallwart
+      service: stalwart
     smtp:
       rule: HostSNI(`*`)
       entrypoints:
@@ -54,3 +60,4 @@ http:
         - imaps
       tls:
         passthrough: true
+      

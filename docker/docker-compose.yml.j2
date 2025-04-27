@@ -33,6 +33,7 @@ services:
       POSTGRES_USER: admin
       ZITADEL_PG_PASS: {{ db.ZITADEL_PG_PASS }}
       THERAPY_PG_PASS: {{ db.THERAPY_PG_PASS }}
+      STALWART_PG_PASS: {{ db.STALWART_PG_PASS }}
 
   zitadel:
     user: root
@@ -45,13 +46,14 @@ services:
       db:
         condition: service_healthy
   
-  stallwart:
+  stalwart:
     user: root
     restart: unless-stopped
     image: stalwartlabs/mail-server:latest
-  command: --config 
+    command: --config /opt/stalwart-mail/stalwart.cfg
     volumes:
-      - "{{stallwart_home}}:/opt/stalwart-mail"
+      - "{{stalwart_home}}:/opt/stalwart-mail"
+      - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
 
 volumes:
   database:

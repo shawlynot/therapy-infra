@@ -8,7 +8,7 @@
     cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
     traefik_home: /usr/local/traefik
     zitadel_home: /usr/local/zitadel
-    stallwart_home: /usr/local/stalwart-mail
+    stalwart_home: /usr/local/stalwart-mail
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -39,7 +39,7 @@
       with_items:
         - "{{ traefik_home }}"
         - "{{ zitadel_home }}"
-        - "{{ stallwart_home }}"
+        - "{{ stalwart_home }}"
 
     - name: Traefik cfg
       ansible.builtin.template:
@@ -55,6 +55,11 @@
         dest: "{{ zitadel_home }}/{{ item }}"
       with_items:
         - config.yml
+    
+    - name: Stalwart cfg
+      ansible.builtin.template:
+        src: "stalwart/stalwart.cfg.j2"
+        dest: "{{ stalwart_home }}/stalwart.cfg"
 
     - name: db image copy
       ansible.builtin.copy:
