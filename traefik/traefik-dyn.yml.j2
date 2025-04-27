@@ -2,6 +2,11 @@ tls:
   certificates:
     - certFile: "/etc/certs/fullchain.cer"
       keyFile: "/etc/certs/{{ cert.domain }}.key"
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/etc/certs/fullchain.cer"
+        keyFile: "/etc/certs/{{ cert.domain }}.key"
 
 http:
   services:
@@ -13,51 +18,54 @@ http:
       loadBalancer:
         servers:
         - url: "https://stalwart:443"
-    smtp:
-      loadBalancer:
-        servers:
-          - address: "stalwart:25"
-        proxyProtocol:
-          trustedIPs:
-            - 172.19.0.0/16
-    smtps:
-      loadBalancer:
-        servers:
-          - address: "stalwart:465"
-        proxyProtocol:
-          trustedIPs:
-            - 172.19.0.0/16
-    imaps:
-      loadBalancer:
-        servers:
-          - address: "stalwart:993"
-        proxyProtocol:
-          trustedIPs:
-            - 172.19.0.0/16
   routers:
     auth:
       tls: {}
       rule: "Host(`auth.{{ cert.domain }}`)"
       service: zitadel
     mail:
-      tls:
-        passthrough: true
+      tls: {}
       rule: "Host(`mail.{{ cert.domain }}`)"
       service: stalwart
+      
+tcp:
+  services:
+    smtp:
+      loadBalancer:
+        servers:
+          - address: "stalwart:25"
+        proxyProtocol:
+          version: 2
+    smtps:
+      loadBalancer:
+        servers:
+          - address: "stalwart:465"
+        proxyProtocol:
+          version: 2
+    imaps:
+      loadBalancer:
+        servers:
+          - address: "stalwart:993"
+        proxyProtocol:
+          version: 2
+  routers:
     smtp:
       rule: HostSNI(`*`)
       entrypoints:
         - smtp
+      service: smtp
     smtps:
       rule: HostSNI(`*`)
       entrypoints:
         - smtps
       tls:
         passthrough: true
+      service: smtps
     imaps:
       rule: HostSNI(`*`)
       entrypoints:
         - imaps
       tls:
         passthrough: true
-      
+      service: imaps
+  
