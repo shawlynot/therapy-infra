@@ -17,7 +17,8 @@ http:
     stalwart:
       loadBalancer:
         servers:
-        - url: "https://stalwart:80"
+        - url: "https://stalwart:443"
+        serversTransport: insecure-skip-verify
   routers:
     auth:
       tls: {}

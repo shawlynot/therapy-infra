@@ -50,10 +50,14 @@ services:
     user: root
     restart: unless-stopped
     image: stalwartlabs/mail-server:latest
-    command: --config /opt/stalwart-mail/stalwart.cfg
     volumes:
-      - "{{stalwart_home}}:/opt/stalwart-mail"
-      - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
+      - "{{stalwart_home}}/stalwart.toml:/opt/stalwart-mail/etc/config.toml:ro"
+      - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs:ro"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 8080:8080
 
 volumes:
   database:

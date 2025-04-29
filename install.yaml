@@ -58,8 +58,8 @@
     
     - name: Stalwart cfg
       ansible.builtin.template:
-        src: "stalwart/stalwart.cfg.j2"
-        dest: "{{ stalwart_home }}/stalwart.cfg"
+        src: "stalwart/stalwart.toml.j2"
+        dest: "{{ stalwart_home }}/stalwart.toml"
 
     - name: db image copy
       ansible.builtin.copy:
