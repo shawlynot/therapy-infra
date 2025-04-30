@@ -12,7 +12,8 @@ services:
       - "465:465"
       - "993:993"
     volumes:
-      - "{{ traefik_home }}:/etc/traefik"
+      - "{{ traefik_home }}-dyn.yml:/etc/traefik-dyn.yml:ro"
+      - "{{ traefik_home }}.yml:/etc/traefik.yml:ro"
       - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
 
   db:
@@ -33,7 +34,6 @@ services:
       POSTGRES_USER: admin
       ZITADEL_PG_PASS: {{ db.ZITADEL_PG_PASS }}
       THERAPY_PG_PASS: {{ db.THERAPY_PG_PASS }}
-      STALWART_PG_PASS: {{ db.STALWART_PG_PASS }}
 
   zitadel:
     user: root
@@ -45,19 +45,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-  
-  stalwart:
-    user: root
-    restart: unless-stopped
-    image: stalwartlabs/mail-server:latest
-    volumes:
-      - "{{stalwart_home}}/stalwart.toml:/opt/stalwart-mail/etc/config.toml:ro"
-      - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs:ro"
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - 8080:8080
 
 volumes:
   database:

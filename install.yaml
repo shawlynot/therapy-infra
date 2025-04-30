@@ -55,11 +55,6 @@
         dest: "{{ zitadel_home }}/{{ item }}"
       with_items:
         - config.yml
-    
-    - name: Stalwart cfg
-      ansible.builtin.template:
-        src: "stalwart/stalwart.toml.j2"
-        dest: "{{ stalwart_home }}/stalwart.toml"
 
     - name: db image copy
       ansible.builtin.copy:
