@@ -70,11 +70,6 @@ services:
     volumes:
       - ./media:/media
       - ./custom-templates:/templates
-    env_file:
-      - .env
-    ports:
-      - "${COMPOSE_PORT_HTTP:-9000}:9000"
-      - "${COMPOSE_PORT_HTTPS:-9443}:9443"
     depends_on:
       postgresql:
         condition: service_healthy
@@ -104,8 +99,6 @@ services:
       AUTHENTIK_EMAIL__TIMEOUT: 10
       AUTHENTIK_EMAIL__FROM: no-reply@{{ cert.domain }}
     user: root
-    env_file:
-      - .env
     depends_on:
       postgresql:
         condition: service_healthy
