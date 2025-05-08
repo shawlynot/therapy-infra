@@ -32,18 +32,84 @@ services:
     environment:
       POSTGRES_PASSWORD: "{{ db.POSTGRES_PASSWORD }}"
       POSTGRES_USER: admin
-      ZITADEL_PG_PASS: {{ db.ZITADEL_PG_PASS }}
+      AUTH_PG_PASS: {{ db.AUTH_PG_PASS }}
       THERAPY_PG_PASS: {{ db.THERAPY_PG_PASS }}
 
-  zitadel:
-    user: root
+  redis:
+    image: docker.io/library/redis:alpine
+    command: --save 60 1 --loglevel warning
     restart: unless-stopped
-    image: ghcr.io/zitadel/zitadel:latest
-    command: start-from-init --config /config.yml --masterkey {{ zitadel.masterKey }} --tlsMode disabled
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      start_period: 20s
+      interval: 30s
+      retries: 5
+      timeout: 3s
+    # volumes:
+    #   - redis:/data
+
+  auth-server:
+    image: ghcr.io/goauthentik/server:2025.4.0
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_SECRET_KEY: {{ auth.admin_pass }}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: auth
+      AUTHENTIK_POSTGRESQL__NAME: auth
+      AUTHENTIK_POSTGRESQL__PASSWORD: {{ db.AUTH_PG_PASS }}
+      AUTHENTIK_EMAIL__HOST: smtp.eu.mailgun.org
+      AUTHENTIK_EMAIL__PORT: 587
+      AUTHENTIK_EMAIL__USERNAME: auth@mail.{{ cert.domain }}
+      AUTHENTIK_EMAIL__PASSWORD: {{ auth.smtp_pass }}
+      AUTHENTIK_EMAIL__USE_TL: true
+      AUTHENTIK_EMAIL__USE_SSL: false
+      AUTHENTIK_EMAIL__TIMEOUT: 10
+      AUTHENTIK_EMAIL__FROM: no-reply@{{ cert.domain }}
     volumes:
-      - "{{ zitadel_home }}/config.yml:/config.yml:ro"
+      - ./media:/media
+      - ./custom-templates:/templates
+    env_file:
+      - .env
+    ports:
+      - "${COMPOSE_PORT_HTTP:-9000}:9000"
+      - "${COMPOSE_PORT_HTTPS:-9443}:9443"
     depends_on:
-      db:
+      postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  auth-worker:
+    image: ghcr.io/goauthentik/server:2025.4.0
+    restart: unless-stopped
+    command: worker
+    volumes:
+     - ./media:/media
+     - ./custom-templates:/templates
+    environment:
+      AUTHENTIK_SECRET_KEY: {{ auth.admin_pass }}
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__USER: auth
+      AUTHENTIK_POSTGRESQL__NAME: auth
+      AUTHENTIK_POSTGRESQL__PASSWORD: {{ db.AUTH_PG_PASS }}
+      AUTHENTIK_EMAIL__HOST: smtp.eu.mailgun.org
+      AUTHENTIK_EMAIL__PORT: 587
+      AUTHENTIK_EMAIL__USERNAME: auth@mail.{{ cert.domain }}
+      AUTHENTIK_EMAIL__PASSWORD: {{ auth.smtp_pass }}
+      AUTHENTIK_EMAIL__USE_TL: true
+      AUTHENTIK_EMAIL__USE_SSL: false
+      AUTHENTIK_EMAIL__TIMEOUT: 10
+      AUTHENTIK_EMAIL__FROM: no-reply@{{ cert.domain }}
+    user: root
+    env_file:
+      - .env
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
 volumes:
