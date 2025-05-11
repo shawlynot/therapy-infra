@@ -15,25 +15,6 @@ entryPoints:
           - main: "{{ cert.domain }}"
           - sans:
             - "auth.{{ cert.domain }}"
-            - "mail.{{ cert.domain }}"
-
-  smtp:
-    address: :25
-    proxyProtocol:
-      trustedIPs: 
-        - 172.19.0.0/16
-
-  smtps:
-    address: :465
-    proxyProtocol:
-      trustedIPs: 
-        - 172.19.0.0/16
-
-  imaps:
-    address: :993
-    proxyProtocol:
-      trustedIPs:
-        - 172.19.0.0/16
     
 providers:
   file:

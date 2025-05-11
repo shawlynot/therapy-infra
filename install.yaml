@@ -7,8 +7,7 @@
     acme_home: /usr/local/acme
     cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
     traefik_home: /usr/local/traefik
-    zitadel_home: /usr/local/zitadel
-    stalwart_home: /usr/local/stalwart-mail
+    auth_home: /usr/local/zitadel
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -38,8 +37,7 @@
         state: directory
       with_items:
         - "{{ traefik_home }}"
-        - "{{ zitadel_home }}"
-        - "{{ stalwart_home }}"
+        - "{{ auth_home }}"
 
     - name: Traefik cfg
       ansible.builtin.template:
@@ -48,13 +46,6 @@
       with_items:
         - traefik.yml
         - traefik-dyn.yml
-    
-    - name: Zitadel cfg
-      ansible.builtin.template:
-        src: "zitadel/{{ item }}.j2"
-        dest: "{{ zitadel_home }}/{{ item }}"
-      with_items:
-        - config.yml
 
     - name: db image copy
       ansible.builtin.copy:

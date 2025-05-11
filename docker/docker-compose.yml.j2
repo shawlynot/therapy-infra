@@ -55,7 +55,7 @@ services:
     environment:
       AUTHENTIK_SECRET_KEY: {{ auth.admin_pass }}
       AUTHENTIK_REDIS__HOST: redis
-      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__HOST: db
       AUTHENTIK_POSTGRESQL__USER: auth
       AUTHENTIK_POSTGRESQL__NAME: auth
       AUTHENTIK_POSTGRESQL__PASSWORD: {{ db.AUTH_PG_PASS }}
@@ -63,7 +63,7 @@ services:
       AUTHENTIK_EMAIL__PORT: 587
       AUTHENTIK_EMAIL__USERNAME: auth@mail.{{ cert.domain }}
       AUTHENTIK_EMAIL__PASSWORD: {{ auth.smtp_pass }}
-      AUTHENTIK_EMAIL__USE_TL: true
+      AUTHENTIK_EMAIL__USE_TLS: true
       AUTHENTIK_EMAIL__USE_SSL: false
       AUTHENTIK_EMAIL__TIMEOUT: 10
       AUTHENTIK_EMAIL__FROM: no-reply@{{ cert.domain }}
@@ -71,7 +71,7 @@ services:
       - ./media:/media
       - ./custom-templates:/templates
     depends_on:
-      postgresql:
+      db:
         condition: service_healthy
       redis:
         condition: service_healthy
@@ -86,7 +86,7 @@ services:
     environment:
       AUTHENTIK_SECRET_KEY: {{ auth.admin_pass }}
       AUTHENTIK_REDIS__HOST: redis
-      AUTHENTIK_POSTGRESQL__HOST: postgresql
+      AUTHENTIK_POSTGRESQL__HOST: db
       AUTHENTIK_POSTGRESQL__USER: auth
       AUTHENTIK_POSTGRESQL__NAME: auth
       AUTHENTIK_POSTGRESQL__PASSWORD: {{ db.AUTH_PG_PASS }}
@@ -94,13 +94,13 @@ services:
       AUTHENTIK_EMAIL__PORT: 587
       AUTHENTIK_EMAIL__USERNAME: auth@mail.{{ cert.domain }}
       AUTHENTIK_EMAIL__PASSWORD: {{ auth.smtp_pass }}
-      AUTHENTIK_EMAIL__USE_TL: true
+      AUTHENTIK_EMAIL__USE_TLS: true
       AUTHENTIK_EMAIL__USE_SSL: false
       AUTHENTIK_EMAIL__TIMEOUT: 10
       AUTHENTIK_EMAIL__FROM: no-reply@{{ cert.domain }}
     user: root
     depends_on:
-      postgresql:
+      db:
         condition: service_healthy
       redis:
         condition: service_healthy

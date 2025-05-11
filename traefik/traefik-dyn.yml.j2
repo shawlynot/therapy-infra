@@ -10,63 +10,12 @@ tls:
 
 http:
   services:
-    zitadel:
+    auth-server:
       loadBalancer:
         servers:
-        - url: "h2c://zitadel:8080"
-    stalwart:
-      loadBalancer:
-        servers:
-        - url: "https://stalwart:443"
-        serversTransport: insecure-skip-verify
+        - url: "http://auth-server:9000"
   routers:
     auth:
       tls: {}
       rule: "Host(`auth.{{ cert.domain }}`)"
-      service: zitadel
-    mail:
-      tls: {}
-      rule: "Host(`mail.{{ cert.domain }}`)"
-      service: stalwart
-      
-tcp:
-  services:
-    smtp:
-      loadBalancer:
-        servers:
-          - address: "stalwart:25"
-        proxyProtocol:
-          version: 2
-    smtps:
-      loadBalancer:
-        servers:
-          - address: "stalwart:465"
-        proxyProtocol:
-          version: 2
-    imaps:
-      loadBalancer:
-        servers:
-          - address: "stalwart:993"
-        proxyProtocol:
-          version: 2
-  routers:
-    smtp:
-      rule: HostSNI(`*`)
-      entrypoints:
-        - smtp
-      service: smtp
-    smtps:
-      rule: HostSNI(`*`)
-      entrypoints:
-        - smtps
-      tls:
-        passthrough: true
-      service: smtps
-    imaps:
-      rule: HostSNI(`*`)
-      entrypoints:
-        - imaps
-      tls:
-        passthrough: true
-      service: imaps
-  
+      service: auth-server
