@@ -8,9 +8,6 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "25:25"
-      - "465:465"
-      - "993:993"
     volumes:
       - "{{ traefik_home }}-dyn.yml:/etc/traefik-dyn.yml:ro"
       - "{{ traefik_home }}.yml:/etc/traefik.yml:ro"
