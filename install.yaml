@@ -7,7 +7,6 @@
     acme_home: /usr/local/acme
     cert_home: "{{ acme_home }}/config/{{ cert.domain }}_ecc"
     traefik_home: /usr/local/traefik
-    auth_home: /usr/local/zitadel
   tasks:
     - name: Ping my hosts
       ansible.builtin.ping:
@@ -37,7 +36,6 @@
         state: directory
       with_items:
         - "{{ traefik_home }}"
-        - "{{ auth_home }}"
 
     - name: Traefik cfg
       ansible.builtin.template:
