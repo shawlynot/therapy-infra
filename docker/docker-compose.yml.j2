@@ -13,7 +13,7 @@ services:
       - "{{ acme_home }}/config/{{ cert.domain }}_ecc:/etc/certs"
 
   db:
-    image: shawlynot/db:1
+    image: ghcr.io/shawlynot/db:latest
     restart: unless-stopped
     ports: 
      - "5432:5432"

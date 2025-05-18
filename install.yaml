@@ -45,21 +45,19 @@
         - traefik.yml
         - traefik-dyn.yml
 
-    - name: db image copy
-      ansible.builtin.copy:
-        src: db/build/db.tar
-        dest: db.tar
-
-    - name: Load all image(s) from the given tar file
-      community.docker.docker_image_load:
-        path: db.tar
-
     - name: Docker yaml
       ansible.builtin.template:
         src: "docker/docker-compose.yml.j2"
         dest: "docker-compose.yml"
 
+    - name: Log in to GitHub Container Registry
+      community.docker.docker_login:
+        registry: ghcr.io
+        username: "shawlynot"
+        password: "{{ docker.pass }}"
+
     - name: Docker start
       community.docker.docker_compose_v2:
         project_src: "."
         remove_orphans: true
+        pull: always
