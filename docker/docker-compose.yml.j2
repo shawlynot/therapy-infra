@@ -29,6 +29,14 @@ services:
       POSTGRES_PASSWORD: "{{ db.POSTGRES_PASSWORD }}"
       POSTGRES_USER: admin
       THERAPY_PG_PASS: {{ db.THERAPY_PG_PASS }}
+  
+  backend:
+    image: ghcr.io/shawlynot/backend:latest
+    restart: unless-stopped
+    environment:
+      DB_PASS: "{{ db.THERAPY_PG_PASS }}"
+      DB_HOST: db
+      DB_PORT: "5432"
 
 volumes:
   database:

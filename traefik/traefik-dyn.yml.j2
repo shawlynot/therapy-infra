@@ -10,12 +10,12 @@ tls:
 
 http:
   services:
-    auth-server:
+    backend:
       loadBalancer:
         servers:
-        - url: "http://auth-server:9000"
+        - url: "http://backend:80"
   routers:
-    auth:
+    backend:
       tls: {}
-      rule: "Host(`auth.{{ cert.domain }}`)"
-      service: auth-server
+      rule: "PathPrefix(`/api`)"
+      service: backend
